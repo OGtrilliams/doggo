@@ -1,4 +1,4 @@
-FROM centos7:latest
+FROM centos:latest
 MAINTAINER T. Nichole Williams (tribecca@tribecc.us)
 
 RUN yum -y update && yum -y install centos-release-openstack-pike
