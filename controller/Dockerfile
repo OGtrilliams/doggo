@@ -1,32 +1,17 @@
-FROM centos:latest
+FROM ubuntu:16.04
 MAINTAINER T. Nichole Williams (tribecca@tribecc.us)
 
-RUN yum -y update && yum -y install centos-release-openstack-pike
-RUN yum -y install git mariadb-server mariadb
-RUN systemctl start mariadb && systemctl enable mariadb
-# keystone
-RUN echo "create database keystone;" | mysql
-RUN echo "grant all privileges on keystone.* to 'keystone'@'localhost' identified by 'openshift';" | mysql && echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'openshift';" | mysql && echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'openshift';" | mysql && echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'openshift';" | mysql
-# glance
+RUN apt -y update && apt -y upgrade && apt install -y software-properties-common && add-apt-repository -y cloud-archive:pike
+RUN apt -y update && apt -y upgrade
+RUN apt -y install mariadb-server python-pmysql python-openstackclient rabbitmq-server memcached python-memcache
+# rabbitmq
+RUN rabbitmqctl add_user openstack openstack
+RUN rabbitmqctl set_permissions openstack ".*" ".*" ".*"
+# memcached
 
-RUN echo "create database glance;" | mysql
-RUN echo "grant all privileges on glance.* to 'glance'@'localhost' identified by 'openshift';" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'openshift';" | mysql
-# nova
+COPY entrypoint.sh /entrypoint.sh
+COPY keystone.sh /keystone.sh
 
-RUN echo "create database nova_api;" | mysql
-RUN echo "create database nova;" | mysql
-RUN echo "create database nova_cell0;" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY 'openstack';" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY 'openstack';" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'openstack';" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'openstack';" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY 'openstack';" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY 'openstack';" | mysql
-# neutron
-RUN echo "create database neutron;" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'openstack';" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'openstack';" | mysql
+CMD ["/entrypoint.sh"]
 
-
-EXPOSE 3306
+EXPOSE 3306 35357 9292 5000 5672 8774 8776 6080 9696 80
