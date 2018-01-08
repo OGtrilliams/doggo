@@ -14,6 +14,7 @@ RUN mkdir -p /etc/etcd
 COPY etc/etcd/etcd.conf.yml /etc/etcd/etcd.conf.yml
 COPY etcd/tmp/etcd/etcd /usr/bin/etcd*
 COPY etcd/lib/systemd/system/etcd.service /lib/systemd/system.etcd.service
+COPY etcd/tmp/etcd-v3.2.7-linux-amd64.tar.gz /tmp/etcd/
 
 EXPOSE 3306 35357 9292 5000 5672 8774 8776 6080 9696 80
 
