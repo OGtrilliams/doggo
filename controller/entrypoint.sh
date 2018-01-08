@@ -10,10 +10,10 @@ export OS_IDENTITY_API_VERSION=3
 
 # mysql setup on controller node
 echo "Starting MariaDB service..."
-systemctl restart mysql
+service mysql restart
 # rabbitmq
 echo "Starting RabbitMQ service..." 
-systemctl restart rabbitmq
+service rabbitmq restart
 rabbitmqctl add_user openstack openstack
 sleep 3
 rabbitmqctl set_permissions openstack ".*" ".*" ".*"
@@ -29,13 +29,13 @@ mkdir -p /var/lib/etcd
 chown -R etcd:etcd /var/lib/etcd
 
 mkdir -p /tmp/etcd
-tar xzvf /tmp/etcd-v3.2.7-linux-amd64.tar.gz -C /tmp/etcd --strip-components=1
+tar xzvf /tmp/etcd/etcd-v3.2.7-linux-amd64.tar.gz -C /tmp/etcd --strip-components=1
 cp /tmp/etcd/etcd /usr/bin/etcd
 cp /tmp/etcd/etcdctl /usr/bin/etcdctl
 chown -R nova:nova /etc/nova
 chown -R root:glance /etc/glance
 chown -R keystone:keystone /etc/keystone
-chown -R horizon:horizon /var/lib/horizon
+# chown -R horizon:horizon /var/lib/horizon
 
 # keystone
 echo "create database keystone;" | mysql
@@ -112,7 +112,3 @@ service neutron-dhcp-agent restart
 service neutron-metadata-agent restart
 service neutron-l3-agent restart
 
-
-while true
-    do sleep 1
-done
