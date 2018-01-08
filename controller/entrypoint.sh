@@ -34,6 +34,7 @@ echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'opensh
 echo "create database glance;" | mysql
 echo "grant all privileges on glance.* to 'glance'@'localhost' identified by 'openshift';" | mysql
 echo "GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'openshift';" | mysql
+chown -R root:glance /etc/glance
 
 # nova
 echo "create database nova_api;" | mysql
