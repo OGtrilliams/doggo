@@ -1,4 +1,4 @@
-FROM centos:latest
+FROM ubuntu:16.04
 MAINTAINER T. Nichole Williams (tribecca@tribecc.us)
 
 USER root

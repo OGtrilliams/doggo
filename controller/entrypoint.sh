@@ -1,7 +1,29 @@
 #!/bin/bash
 # mysql setup on controller node
 
-# keystone
+# rabbitmq
+rabbitmqctl add_user openstack openstack
+sleep 3
+rabbitmqctl set_permissions openstack ".*" ".*" ".*"
+
+# etcd
+groupadd --system etcd
+useradd --home-dir "/var/lib/etcd" --system --shell /bin/false \
+    -g etcd etcd
+
+mkdir -p /etc/etcd
+chown -R etcd:etcd /etc/etcd
+mkdir -p /var/lib/etcd
+chown -R etcd:etcd /var/lib/etcd
+
+ETCD_VER=v3.2.7
+rm -rf /tmp/etcd && mkdir -p /tmp/etcd
+curl -L https://github.com/coreos/etcd/releases/download/${ETCD_VER}/etcd-${ETCD_VER}-linux-amd64.tar.gz -o /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz
+tar xzvf /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz -C /tmp/etcd --strip-components=1
+cp /tmp/etcd/etcd /usr/bin/etcd
+cp /tmp/etcd/etcdctl /usr/bin/etcdctl
+
+ # keystone
 echo "create database keystone;" | mysql
 echo "grant all privileges on keystone.* to 'keystone'@'localhost' identified by 'openshift';" | mysql
 echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'openshift';" | mysql
@@ -36,4 +58,12 @@ while true; do
         else echo "Waiting for RabbitMQ Server Password change....";sleep 1
         fi
     fi
+done
+
+
+
+
+
+while true
+    do sleep 1
 done
