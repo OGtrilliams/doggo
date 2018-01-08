@@ -1,16 +1,19 @@
 FROM ubuntu:16.04
 MAINTAINER T. Nichole Williams (tribecca@tribecc.us)
 
-USER root
-RUN yum -y update && yum -y install centos-release-openstack-pike
-RUN yum -y install git mariadb-server mariadb
-RUN systemctl start mariadb && systemctl enable mariadb
-RUN echo "create database keystone;" | mysql
-RUN echo "grant all privileges on keystone.* to 'keystone'@'localhost' identified by 'openshift';" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'openshift';" | mysql
-RUN echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'openshift';" | mysql 
-RUN echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'openshift';" | mysql
+RUN apt -y update && apt -y upgrade
+RUN apt -y install software-properties-common && add-apt-repository -y \
+    cloud-archive:pike && apt -y update && apt -y dist-upgrade && \
+    apt -y install python-pymysql nova-compute sysfsutils ceph-common telnet curl && \
+    apt autoclean && apt autoremove && rm -rf /var/lib/apt/lists/*
 
-RUN yum -y install openstack-keystone httpd mod_wsgi
-RUN wget -o /etc/keystone/keystone.conf https://raw.githubusercontent.com/OGtrilliams/doggo/master/keystone/keystone.conf
+RUN mkdir -p /etc/nova
+RUN mkdir -p /etc/neutron
 
+COPY nova/* /etc/nova/
+COPY neutron/* /etc/neutron/
+
+VOLUME ["/var/lib/nova/instances"]
+ADD entrypoint.sh /
+EXPOSE 5900 16509
+ENTRYPOINT ["/entrypoint.sh"]

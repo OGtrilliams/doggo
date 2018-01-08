@@ -3,16 +3,17 @@ MAINTAINER T. Nichole Williams (tribecca@tribecc.us)
 
 RUN apt -y update && apt -y upgrade && apt install -y software-properties-common && add-apt-repository -y cloud-archive:pike
 RUN apt -y update && apt -y upgrade
-RUN apt -y install mariadb-server python-pmysql python-openstackclient \
+RUN apt -y install mariadb-server python-pymysql python-openstackclient \
     rabbitmq-server memcached python-memcache
 
 COPY entrypoint.sh /entrypoint.sh
 RUN mkdir -p /etc/mysql/mariadb.conf.d
-COPY mysql/99-openstack.conf /etc/mysql/mariadb.conf.d/99-openstack.conf
+COPY mysql/99-openstack.cnf /etc/mysql/mariadb.conf.d/99-openstack.cnf
 COPY etc/memcached.conf /etc/memcached.conf
 RUN mkdir -p /etc/etcd
 COPY etc/etcd/etcd.conf.yml /etc/etcd/etcd.conf.yml
 COPY etcd/tmp/etcd/etcd /usr/bin/etcd*
+COPY etcd/lib/systemd/system/etcd.service /lib/systemd/system.etcd.service
 
 EXPOSE 3306 35357 9292 5000 5672 8774 8776 6080 9696 80
 
